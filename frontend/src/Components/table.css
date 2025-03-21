@@ -109,4 +109,34 @@ button {
   font-size: 22px;
   margin: 5px 0 0;
 }
+.alert-box {
+  background-color: #ffcccc;
+  color: #990000;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #990000;
+  border-radius: 5px;
+}
+
+.low-stock {
+  background-color: #ffebeb !important;
+  color: red;
+  font-weight: bold;
+}
+
+.update-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.delete-btn {
+  background-color: #f44336;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+}
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import "./table.css";
 import Header from "../Components/Header";
 
@@ -8,9 +8,11 @@ const InventoryTable = () => {
   const [inventoryData, setInventoryData] = useState([]);
   const [totalWeight, setTotalWeight] = useState(0);
   const [wasteTypeTotals, setWasteTypeTotals] = useState({});
+  const [lowStockItems, setLowStockItems] = useState([]);  //  Store items with low stock
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const STOCK_THRESHOLD = 5; //  Set low stock alert threshold (e.g., 5kg)
 
   useEffect(() => {
     axios.get("http://localhost:8070/inventory/")
@@ -27,8 +29,12 @@ const InventoryTable = () => {
           acc[type] = (acc[type] || 0) + parseFloat(item.totalWeight || 0);
           return acc;
         }, {});
-
         setWasteTypeTotals(typeTotals);
+
+        //  Identify low stock items
+        const lowStock = response.data.filter(item => item.totalWeight < STOCK_THRESHOLD);
+        setLowStockItems(lowStock);
+
         setLoading(false);
       })
       .catch(() => {
@@ -37,7 +43,6 @@ const InventoryTable = () => {
       });
   }, []);
 
-  // Navigate to update form with the selected item's ID
   const handleUpdate = (id) => {
     navigate(`/update/${id}`);
   };
@@ -58,8 +63,12 @@ const InventoryTable = () => {
           acc[type] = (acc[type] || 0) + parseFloat(item.totalWeight || 0);
           return acc;
         }, {});
-
         setWasteTypeTotals(typeTotals);
+
+        // Update low stock list
+        const lowStock = updatedData.filter(item => item.totalWeight < STOCK_THRESHOLD);
+        setLowStockItems(lowStock);
+
         alert("Item deleted successfully");
       })
       .catch(() => alert("Error deleting item"));
@@ -72,6 +81,18 @@ const InventoryTable = () => {
     <div>
       <Header />
       <h2>Coconut Waste Inventory</h2>
+
+      {/* 🚨 Low Stock Alert Section */}
+      {lowStockItems.length > 0 && (
+        <div className="alert-box">
+          <p>⚠️ Warning: The following items are low on stock (below {STOCK_THRESHOLD}kg):</p>
+          <ul>
+            {lowStockItems.map(item => (
+              <li key={item._id}>Batch ID: {item.batchId} - {item.totalWeight}kg</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Total Weight Overview */}
       <div className="total-weight-container">
@@ -91,6 +112,7 @@ const InventoryTable = () => {
         ))}
       </div>
 
+      {/* Inventory Table */}
       <table border="1">
         <thead>
           <tr>
@@ -108,7 +130,7 @@ const InventoryTable = () => {
         </thead>
         <tbody>
           {inventoryData.map((item) => (
-            <tr key={item._id}>
+            <tr key={item._id} className={item.totalWeight < STOCK_THRESHOLD ? "low-stock" : ""}>
               <td>{item.batchId}</td>
               <td>{item.totalWeight}</td>
               <td>{item.collectionDate}</td>
