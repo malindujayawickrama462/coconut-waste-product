@@ -1,7 +1,9 @@
-const router = require("express").Router();
-let Inventory = require("../models/Inventory");
+const router = require("express").Router(); // Import Express router
+let Inventory = require("../models/Inventory"); // Import Inventory model
 
+// Route to add a new inventory item
 router.route("/add").post((req, res) => {
+    // Extract data from the request body
     const batchId = req.body.batchId;
     const collectionDate = new Date(req.body.collectionDate);
     const sourceLocation = req.body.sourceLocation;
@@ -12,33 +14,39 @@ router.route("/add").post((req, res) => {
     const processingMethod = req.body.processingMethod;
     const notes = req.body.notes; // Changed to lowercase
 
+    // Create a new inventory object
     const newInventory = new Inventory({
         batchId,
         collectionDate,
         sourceLocation,
         totalWeight,
         wasteType,
-        qualityGrade, // Fixed typo
+        qualityGrade,
         processingStatus,
         processingMethod,
-        notes // Changed to lowercase
+        notes
     });
 
+    // Save the new inventory item to the database
     newInventory.save()
-        .then(() => res.json({ message: "Inventory Added" }))
-        .catch((err) => res.status(500).json({ error: err.message }));
+        .then(() => res.json({ message: "Inventory Added" })) // Respond with success message
+        .catch((err) => res.status(500).json({ error: err.message })); // Handle errors
 });
 
+// Route to get all inventory items
 router.route("/").get((req, res) => {
-    Inventory.find()
-        .then((inventories) => res.json(inventories))
-        .catch((err) => res.status(500).json({ error: err.message }));
+    Inventory.find() // Fetch all inventory items from the database
+        .then((inventories) => res.json(inventories)) // Respond with the inventory list
+        .catch((err) => res.status(500).json({ error: err.message })); // Handle errors
 });
 
-router.route("/update/:id").put(async(req,res) => {
-    let userId = req.params.id;
-    const{batchId,collectionDate,sourceLocation,totalWeight,wasteType,qualityGrade,processingStatus,processingMethod,notes} = req.body;
+// Route to update an inventory item by ID
+router.route("/update/:id").put(async (req, res) => {
+    let userId = req.params.id; // Get the inventory ID from URL parameters
+    // Extract updated fields from request body
+    const { batchId, collectionDate, sourceLocation, totalWeight, wasteType, qualityGrade, processingStatus, processingMethod, notes } = req.body;
 
+    // Create an object with updated values
     const updateInventory = {
         batchId,
         collectionDate,
@@ -49,41 +57,46 @@ router.route("/update/:id").put(async(req,res) => {
         processingStatus,
         processingMethod,
         notes
-    }
+    };
 
-    const update = await Inventory.findByIdAndUpdate(userId,updateInventory)
-    .then(() => {
-        res.status(200).send({status:"user updated"})
-    }).catch((err) =>{
-        console.log(err);
-        res.status(500).send({status:"Error with updating data",error:err.message});
-    })
-})
+    // Find and update the inventory item in the database
+    await Inventory.findByIdAndUpdate(userId, updateInventory)
+        .then(() => {
+            res.status(200).send({ status: "Inventory updated" }); // Respond with success message
+        })
+        .catch((err) => {
+            console.log(err); // Log error to console
+            res.status(500).send({ status: "Error with updating data", error: err.message }); // Respond with error message
+        });
+});
 
-router.route("/delete/:id").delete(async(req,res) =>{
-    let userId = req.params.id;
+// Route to delete an inventory item by ID
+router.route("/delete/:id").delete(async (req, res) => {
+    let userId = req.params.id; // Get the inventory ID from URL parameters
 
-    await Inventory.findByIdAndDelete(userId)
-    .then(() => {
-        res.status(200).send({status:"user deleted",});
+    await Inventory.findByIdAndDelete(userId) // Find and delete the inventory item
+        .then(() => {
+            res.status(200).send({ status: "Inventory deleted" }); // Respond with success message
+        })
+        .catch((err) => {
+            console.log(err.message); // Log error to console
+            res.status(500).send({ status: "Error with delete user", error: err.message }); // Respond with error message
+        });
+});
 
-    }).catch((err) => {
-        console.log(err.message);
-        res.status(500).send({status:"Error with delete user",error:err.message});
+// Route to get a specific inventory item by ID
+router.route("/get/:id").get(async (req, res) => {
+    let userId = req.params.id; // Get the inventory ID from URL parameters
 
-    })
-})
-router.route("/get/:id").get(async(req,res) =>{
-    let userId = req.params.id;
-    const user = await Inventory.findById(userId)
-    .then((inventory) => {
-        res.status(200).send({status:"user fetched",inventory});
+    await Inventory.findById(userId) // Find the inventory item by ID
+        .then((inventory) => {
+            res.status(200).send({ status: "Inventory fetched", inventory }); // Respond with the fetched inventory data
+        })
+        .catch((err) => {
+            console.log(err.message); // Log error to console
+            res.status(500).send({ status: "Error with get user", error: err.message }); // Respond with error message
+        });
+});
 
-    }).catch((err) => {
-        console.log(err.message);
-        res.status(500).send({status:"Error with get user",error:err.message});
-
-    })
-})
-
+// Export the router module for use in other files
 module.exports = router;
