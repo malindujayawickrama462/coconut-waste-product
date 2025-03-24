@@ -22,7 +22,7 @@ const CoconutWasteForm = () => {
 
     let newErrors = {}; // Initialize an empty object for errors
 
-    // Custom validation logic
+    //  validation 
     if (!formData.batchId.trim()) newErrors.batchId = 'Batch ID is required';
     if (!formData.totalWeight || formData.totalWeight <= 0)
       newErrors.totalWeight = 'Total Weight must be greater than 0';
