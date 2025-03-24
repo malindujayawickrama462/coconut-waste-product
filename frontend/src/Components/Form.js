@@ -1,26 +1,31 @@
-import './form.css';
-import React, { useState } from 'react';
-import axios from 'axios';
+// Import necessary modules
+import './form.css'; // Import external stylesheet for styling
+import React, { useState } from 'react'; // Import React and useState hook for state management
+import axios from 'axios'; // Import axios for making HTTP requests
 
+// Define the CoconutWasteForm component
 const CoconutWasteForm = () => {
+  // Define state to manage form data
   const [formData, setFormData] = useState({
-    batchId: '',
-    totalWeight: '',
-    collectionDate: '',
-    sourceLocation: '',
-    wasteType: 'Coconut Husk',
-    qualityGrade: 'Grade A',
-    processingStatus: 'Pending',
-    processingMethod: 'Mechanical',
-    notes: ''
+    batchId: '', // Unique identifier for the batch
+    totalWeight: '', // Total weight of the coconut waste
+    collectionDate: '', // Date of waste collection
+    sourceLocation: '', // Source location of the waste
+    wasteType: 'Coconut Husk', // Default waste type
+    qualityGrade: 'Grade A', // Default quality grade
+    processingStatus: 'Pending', // Default processing status
+    processingMethod: 'Mechanical', // Default processing method
+    notes: '' // Additional notes
   });
 
+  // State to handle validation errors
   const [errors, setErrors] = useState({});
 
+  // Handle form submission
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default form submission behavior
 
-    // Simple validation
+    // Perform  validation
     let newErrors = {};
     if (!formData.batchId.trim()) newErrors.batchId = 'Batch ID is required';
     if (!formData.totalWeight || formData.totalWeight <= 0)
@@ -28,17 +33,20 @@ const CoconutWasteForm = () => {
     if (!formData.collectionDate) newErrors.collectionDate = 'Collection Date is required';
     if (!formData.sourceLocation.trim()) newErrors.sourceLocation = 'Source Location is required';
 
+    // Update error state
     setErrors(newErrors);
 
+    // Stop submission if validation errors exist
     if (Object.keys(newErrors).length > 0) {
-      return; // Stop submission if there are errors
+      return;
     }
 
     try {
+      // Send data to backend API
       await axios.post("http://localhost:8070/inventory/add", formData);
-      alert("Waste details added successfully!");
+      alert("Waste details added successfully!"); // Show success message
 
-      // Reset form
+      // Reset form fields
       setFormData({
         batchId: '',
         totalWeight: '',
@@ -51,10 +59,11 @@ const CoconutWasteForm = () => {
         notes: ''
       });
     } catch (err) {
-      alert("Error adding details: " + err.message);
+      alert("Error adding details: " + err.message); // Show error message if request fails
     }
   };
 
+  // Handle input changes and update state
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -65,8 +74,10 @@ const CoconutWasteForm = () => {
 
   return (
     <div className="inventory-form">
-      <h2>Coconut Waste Inventory Details</h2>
+      <h2>Coconut Waste Inventory Details</h2> {/* Form heading */}
       <form onSubmit={handleSubmit}>
+        
+        {/* Batch Information Section */}
         <fieldset>
           <legend>Batch Information</legend>
           <div className="form-group">
@@ -82,6 +93,7 @@ const CoconutWasteForm = () => {
           </div>
         </fieldset>
 
+        {/* Quantity Details Section */}
         <fieldset>
           <legend>Quantity Details</legend>
           <div className="form-group">
@@ -97,6 +109,7 @@ const CoconutWasteForm = () => {
           </div>
         </fieldset>
 
+        {/* Collection Date & Source Location Section */}
         <fieldset>
           <legend>Collection Date</legend>
           <div className="form-row">
@@ -125,6 +138,7 @@ const CoconutWasteForm = () => {
           </div>
         </fieldset>
 
+        {/* Waste Type & Quality Grade Section */}
         <fieldset>
           <legend>Waste Type</legend>
           <div className="form-row">
@@ -148,6 +162,7 @@ const CoconutWasteForm = () => {
           </div>
         </fieldset>
 
+        {/* Processing Status & Notes Section */}
         <fieldset>
           <legend>Processing Information</legend>
           <div className="form-row">
@@ -171,6 +186,7 @@ const CoconutWasteForm = () => {
           </div>
         </fieldset>
 
+        {/* Processing Method Section */}
         <fieldset>
           <legend>Processing Method</legend>
           <div className="form-group">
@@ -182,23 +198,31 @@ const CoconutWasteForm = () => {
           </div>
         </fieldset>
 
+        {/* Form Actions (Cancel & Submit Buttons) */}
         <div className="form-actions">
-          <button type="button" className="cancel-btn" onClick={() => setFormData({
-            batchId: '',
-            totalWeight: '',
-            collectionDate: '',
-            sourceLocation: '',
-            wasteType: 'Coconut Husk',
-            qualityGrade: 'Grade A',
-            processingStatus: 'Pending',
-            processingMethod: 'Mechanical',
-            notes: ''
-          })}>Cancel</button>
+          <button 
+            type="button" 
+            className="cancel-btn" 
+            onClick={() => setFormData({
+              batchId: '',
+              totalWeight: '',
+              collectionDate: '',
+              sourceLocation: '',
+              wasteType: 'Coconut Husk',
+              qualityGrade: 'Grade A',
+              processingStatus: 'Pending',
+              processingMethod: 'Mechanical',
+              notes: ''
+            })}
+          >
+            Cancel
+          </button>
           <button type="submit" className="submit-btn">Save Details</button>
         </div>
+
       </form>
     </div>
   );
 };
 
-export default CoconutWasteForm;
+export default CoconutWasteForm; // Export component for use in other files
